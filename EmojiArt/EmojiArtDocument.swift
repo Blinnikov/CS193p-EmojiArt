@@ -26,16 +26,24 @@ class EmojiArtDocument: ObservableObject {
   var background: EmojiArtModel.Background { emojiArt.background }
   
   @Published var backgroundImage: UIImage?
+  @Published var backgroundImageFetchStatus = BackgroundImageFetchStatus.idle
+  
+  enum BackgroundImageFetchStatus {
+    case idle
+    case fetching
+  }
   
   private func fetchBackgroundImageDataIfNecessary() {
     backgroundImage = nil
     switch emojiArt.background {
     case .url(let url):
       // fetch the url
+      backgroundImageFetchStatus = .fetching
       DispatchQueue.global(qos: .userInitiated).async {
         let imageData = try? Data(contentsOf: url)
         DispatchQueue.main.async { [weak self] in
           if self?.emojiArt.background == EmojiArtModel.Background.url(url) {
+            self?.backgroundImageFetchStatus = .idle
             if imageData != nil {
               self?.backgroundImage = UIImage(data: imageData!)
             }
