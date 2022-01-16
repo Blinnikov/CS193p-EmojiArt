@@ -126,7 +126,7 @@ struct EmojiArtDocumentView: View {
   }
   
   private func fontSize(for emoji: Emoji) -> CGFloat {
-    CGFloat(emoji.size)
+    CGFloat(emoji.size) * zoomScale
   }
   
   @State private var steadyStatePanOffset: CGSize = .zero
