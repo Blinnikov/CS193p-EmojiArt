@@ -11,10 +11,22 @@ struct EmojiArtDocumentView: View {
   typealias Emoji = EmojiArtModel.Emoji
   
   @ObservedObject var document: EmojiArtDocument
-  @State private var selectedEmojis: Set<Emoji> = []
+  @State private var selectedEmojis: Set<Emoji> = [] // It can be Set<Int> for ids
   
   func isSelected(emoji: Emoji) -> Bool {
     selectedEmojis.contains(emoji)
+  }
+  
+  private func toggleSelection(for emoji: Emoji) {
+    if isSelected(emoji: emoji) {
+      selectedEmojis.remove(emoji)
+    } else {
+      selectedEmojis.insert(emoji)
+    }
+  }
+  
+  private func clearSelection() {
+    selectedEmojis.removeAll()
   }
   
   let defaultEmojiFontSize: CGFloat = 40
@@ -34,7 +46,10 @@ struct EmojiArtDocumentView: View {
             .scaleEffect(zoomScale)
             .position(convertFromEmojiCoordinates((0,0), in: geometry))
         )
-          .gesture(doubleTapToZoom(in: geometry.size))
+          .gesture(
+            doubleTapToZoom(in: geometry.size)
+              .exclusively(before: singleTapToClearSelection())
+          )
         if document.backgroundImageFetchStatus == .fetching {
           ProgressView().scaleEffect(2)
         } else {
@@ -49,11 +64,7 @@ struct EmojiArtDocumentView: View {
               .scaleEffect(zoomScale)
               .position(position(for: emoji, in: geometry))
               .onTapGesture {
-                if isSelected(emoji: emoji) {
-                  selectedEmojis.remove(emoji)
-                } else {
-                  selectedEmojis.insert(emoji)
-                }
+                toggleSelection(for: emoji)
               }
           }
         }
@@ -62,7 +73,9 @@ struct EmojiArtDocumentView: View {
       .onDrop(of: [.plainText, .url, .image], isTargeted: nil) { providers, location in
         return drop(providers: providers, at: location, in: geometry)
       }
-      .gesture(panGesture().simultaneously(with: zoomGesture()))
+      .gesture(
+        panGesture().simultaneously(with: zoomGesture())
+      )
     }
   }
   
@@ -147,6 +160,13 @@ struct EmojiArtDocumentView: View {
       }
       .onEnded { gestureScaleAtEnd in
         steadyStateZoomScale *= gestureScaleAtEnd
+      }
+  }
+  
+  private func singleTapToClearSelection() -> some Gesture {
+    TapGesture()
+      .onEnded {
+          clearSelection()
       }
   }
   
