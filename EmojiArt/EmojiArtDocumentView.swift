@@ -11,6 +11,11 @@ struct EmojiArtDocumentView: View {
   typealias Emoji = EmojiArtModel.Emoji
   
   @ObservedObject var document: EmojiArtDocument
+  @State private var selectedEmojis: Set<Emoji> = []
+  
+  func isSelected(emoji: Emoji) -> Bool {
+    selectedEmojis.contains(emoji)
+  }
   
   let defaultEmojiFontSize: CGFloat = 40
   
@@ -35,9 +40,21 @@ struct EmojiArtDocumentView: View {
         } else {
           ForEach(document.emojis) { emoji in
             Text(emoji.text)
+              .overlay(
+                selectedEmojis.contains(emoji)
+                  ? RoundedRectangle(cornerRadius: 15).stroke(Color.blue, lineWidth: 2)
+                  : nil
+              )
               .font(.system(size: fontSize(for: emoji)))
               .scaleEffect(zoomScale)
               .position(position(for: emoji, in: geometry))
+              .onTapGesture {
+                if isSelected(emoji: emoji) {
+                  selectedEmojis.remove(emoji)
+                } else {
+                  selectedEmojis.insert(emoji)
+                }
+              }
           }
         }
       }
