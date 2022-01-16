@@ -47,6 +47,8 @@ struct EmojiArtDocumentView: View {
             .position(convertFromEmojiCoordinates((0,0), in: geometry))
         )
           .gesture(
+            // It lags. Probably it waits first to second tap not to happen.
+            // And it's observed as a delay on emojis deselection.
             doubleTapToZoom(in: geometry.size)
               .exclusively(before: singleTapToClearSelection())
           )
@@ -55,13 +57,8 @@ struct EmojiArtDocumentView: View {
         } else {
           ForEach(document.emojis) { emoji in
             Text(emoji.text)
-              .overlay(
-                selectedEmojis.contains(emoji)
-                  ? RoundedRectangle(cornerRadius: 15).stroke(Color.blue, lineWidth: 2 / zoomScale)
-                  : nil
-              )
-              .font(.system(size: fontSize(for: emoji)))
-              .scaleEffect(zoomScale)
+              .selectionBorder(isOn: selectedEmojis.contains(emoji), lineWidth: 2)
+              .animatableSystemFont(fontSize: fontSize(for: emoji))
               .position(position(for: emoji, in: geometry))
               .onTapGesture {
                 toggleSelection(for: emoji)
