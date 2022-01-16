@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct EmojiArtDocumentView: View {
+  typealias Emoji = EmojiArtModel.Emoji
+  
   @ObservedObject var document: EmojiArtDocument
   
   let defaultEmojiFontSize: CGFloat = 40
@@ -72,7 +74,7 @@ struct EmojiArtDocumentView: View {
     return found
   }
   
-  private func position(for emoji: EmojiArtModel.Emoji, in geometry: GeometryProxy) -> CGPoint {
+  private func position(for emoji: Emoji, in geometry: GeometryProxy) -> CGPoint {
     convertFromEmojiCoordinates((emoji.x, emoji.y), in: geometry)
   }
   
@@ -93,7 +95,7 @@ struct EmojiArtDocumentView: View {
     )
   }
   
-  private func fontSize(for emoji: EmojiArtModel.Emoji) -> CGFloat {
+  private func fontSize(for emoji: Emoji) -> CGFloat {
     CGFloat(emoji.size)
   }
   
