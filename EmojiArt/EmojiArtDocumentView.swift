@@ -42,7 +42,7 @@ struct EmojiArtDocumentView: View {
             Text(emoji.text)
               .overlay(
                 selectedEmojis.contains(emoji)
-                  ? RoundedRectangle(cornerRadius: 15).stroke(Color.blue, lineWidth: 2)
+                  ? RoundedRectangle(cornerRadius: 15).stroke(Color.blue, lineWidth: 2 / zoomScale)
                   : nil
               )
               .font(.system(size: fontSize(for: emoji)))
