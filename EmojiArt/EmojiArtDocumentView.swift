@@ -134,6 +134,8 @@ struct EmojiArtDocumentView: View {
     }
   }
   
+  // MARK: - Drag gestures
+  
   @State private var steadyStatePanOffset: CGSize = .zero
   @GestureState private var gesturePanOffset: CGSize = .zero
   
@@ -150,6 +152,8 @@ struct EmojiArtDocumentView: View {
         steadyStatePanOffset = steadyStatePanOffset + (finalDragGesture.translation / zoomScale)
       }
   }
+  
+  // MARK: - Zoom gestures
   
   @State private var steadyStateZoomScale: CGFloat = 1
   @GestureState private var gestureZoomScale: (background: CGFloat, selection: CGFloat) = (1, 1)
@@ -172,9 +176,17 @@ struct EmojiArtDocumentView: View {
         }
       }
       .onEnded { gestureScaleAtEnd in
-        steadyStateZoomScale *= gestureScaleAtEnd
+        if selection.isEmpty {
+          steadyStateZoomScale *= gestureScaleAtEnd
+        } else {
+          for emoji in selectedEmojis {
+            document.increaseSize(for: emoji, by: gestureScaleAtEnd)
+          }
+        }
       }
   }
+  
+  // MARK: Tap gestures
   
   private func singleTapToClearSelection() -> some Gesture {
     TapGesture()
