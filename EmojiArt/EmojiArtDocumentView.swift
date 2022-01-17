@@ -64,6 +64,7 @@ struct EmojiArtDocumentView: View {
               .selectionBorder(isOn: isSelected(emoji: emoji), lineWidth: 2)
               .animatableSystemFont(fontSize: fontSize(for: emoji))
               .position(position(for: emoji, in: geometry))
+              .gesture(emojiDragGesture(for: emoji))
               .onTapGesture {
                 toggleSelection(for: emoji)
               }
@@ -106,7 +107,7 @@ struct EmojiArtDocumentView: View {
   }
   
   private func position(for emoji: Emoji, in geometry: GeometryProxy) -> CGPoint {
-    convertFromEmojiCoordinates((emoji.x, emoji.y), in: geometry)
+    convertFromEmojiCoordinates((emoji.x, emoji.y), in: geometry) + emojiOffset(for: emoji)
   }
   
   private func convertToEmojiCoordinates(_ location: CGPoint, in geometry: GeometryProxy) -> (x: Int, y: Int) {
@@ -150,6 +151,35 @@ struct EmojiArtDocumentView: View {
       }
       .onEnded { finalDragGesture in
         steadyStatePanOffset = steadyStatePanOffset + (finalDragGesture.translation / zoomScale)
+      }
+  }
+  
+  @GestureState private var gestureEmojiDragOffset: [Int:CGSize] = [:]
+  
+  private func emojiOffset(for emoji: Emoji) -> CGSize {
+    if let offset = gestureEmojiDragOffset[emoji.id] {
+      return offset * zoomScale
+    }
+    
+    return .zero
+  }
+  
+  private func emojiDragGesture(for emoji: Emoji) -> some Gesture {
+    DragGesture()
+      .updating($gestureEmojiDragOffset) { latestDragGestureValue, gestureEmojiDragOffset, _ in
+        let emojiIdsToDrag = selection.isEmpty ? [emoji.id] : selection
+        for id in emojiIdsToDrag {
+          gestureEmojiDragOffset[id] = latestDragGestureValue.translation / zoomScale
+        }
+      }
+      .onEnded { finalDragGesture in
+        if selection.isEmpty {
+          document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
+        } else {
+          for emoji in selectedEmojis {
+            document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
+          }
+        }
       }
   }
   
