@@ -11,22 +11,26 @@ struct EmojiArtDocumentView: View {
   typealias Emoji = EmojiArtModel.Emoji
   
   @ObservedObject var document: EmojiArtDocument
-  @State private var selectedEmojis: Set<Emoji> = [] // It can be Set<Int> for ids
+  @State private var selection: Set<Int> = []
   
   func isSelected(emoji: Emoji) -> Bool {
-    selectedEmojis.contains(emoji)
+    selection.contains(emoji.id)
+  }
+  
+  var selectedEmojis: [Emoji] {
+    document.emojis.filter(isSelected)
   }
   
   private func toggleSelection(for emoji: Emoji) {
     if isSelected(emoji: emoji) {
-      selectedEmojis.remove(emoji)
+      selection.remove(emoji.id)
     } else {
-      selectedEmojis.insert(emoji)
+      selection.insert(emoji.id)
     }
   }
   
   private func clearSelection() {
-    selectedEmojis.removeAll()
+    selection.removeAll()
   }
   
   let defaultEmojiFontSize: CGFloat = 40
@@ -57,7 +61,7 @@ struct EmojiArtDocumentView: View {
         } else {
           ForEach(document.emojis) { emoji in
             Text(emoji.text)
-              .selectionBorder(isOn: selectedEmojis.contains(emoji), lineWidth: 2)
+              .selectionBorder(isOn: isSelected(emoji: emoji), lineWidth: 2)
               .animatableSystemFont(fontSize: fontSize(for: emoji))
               .position(position(for: emoji, in: geometry))
               .onTapGesture {
