@@ -127,7 +127,11 @@ struct EmojiArtDocumentView: View {
   }
   
   private func fontSize(for emoji: Emoji) -> CGFloat {
-    CGFloat(emoji.size) * zoomScale
+    if isSelected(emoji: emoji) {
+      return CGFloat(emoji.size) * selectionZoomScale
+    } else {
+      return CGFloat(emoji.size) * zoomScale
+    }
   }
   
   @State private var steadyStatePanOffset: CGSize = .zero
@@ -148,16 +152,24 @@ struct EmojiArtDocumentView: View {
   }
   
   @State private var steadyStateZoomScale: CGFloat = 1
-  @GestureState private var gestureZoomScale: CGFloat = 1
+  @GestureState private var gestureZoomScale: (background: CGFloat, selection: CGFloat) = (1, 1)
   
   private var zoomScale: CGFloat {
-    steadyStateZoomScale * gestureZoomScale
+    steadyStateZoomScale * gestureZoomScale.background
+  }
+  
+  private var selectionZoomScale: CGFloat {
+    steadyStateZoomScale * gestureZoomScale.selection
   }
   
   private func zoomGesture() -> some Gesture {
     MagnificationGesture()
       .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, _ in
-        gestureZoomScale = latestGestureScale
+        if selection.isEmpty {
+          gestureZoomScale.background = latestGestureScale
+        } else {
+          gestureZoomScale.selection = latestGestureScale
+        }
       }
       .onEnded { gestureScaleAtEnd in
         steadyStateZoomScale *= gestureScaleAtEnd

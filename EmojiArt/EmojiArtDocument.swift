@@ -74,4 +74,12 @@ class EmojiArtDocument: ObservableObject {
       emojiArt.emojis[index].y += Int(offset.height)
     }
   }
+  
+  func increaseSize(for emoji: EmojiArtModel.Emoji, by scale: CGFloat) {
+    if let index = emojiArt.emojis.index(matching: emoji) {
+      let newSize = Int(CGFloat(emojiArt.emojis[index].size) * scale)
+      let finalSize = max(1, newSize)
+      emojiArt.emojis[index].size = finalSize
+    }
+  }
 }
