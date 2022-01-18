@@ -21,14 +21,6 @@ struct EmojiArtDocumentView: View {
     document.emojis.filter(isSelected)
   }
   
-  private func toggleSelection(for emoji: Emoji) {
-    if isSelected(emoji: emoji) {
-      selection.remove(emoji.id)
-    } else {
-      selection.insert(emoji.id)
-    }
-  }
-  
   private func clearSelection() {
     selection.removeAll()
   }
