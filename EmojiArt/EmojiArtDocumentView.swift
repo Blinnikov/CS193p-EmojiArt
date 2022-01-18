@@ -66,7 +66,7 @@ struct EmojiArtDocumentView: View {
               .position(position(for: emoji, in: geometry))
               .gesture(emojiDragGesture(for: emoji))
               .onTapGesture {
-                toggleSelection(for: emoji)
+                selection.toggleMatching(emoji)
               }
           }
         }
