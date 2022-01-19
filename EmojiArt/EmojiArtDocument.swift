@@ -68,11 +68,20 @@ class EmojiArtDocument: ObservableObject {
     emojiArt.addEmoji(emoji, at: location, size: Int(size))
   }
   
-  func moveEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGSize) {
+  func removeEmoji(_ emoji: EmojiArtModel.Emoji) {
+    emojiArt.removeEmoji(emoji)
+  }
+  
+  @discardableResult
+  func moveEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGSize) -> (x: Int, y: Int) {
     if let index = emojiArt.emojis.index(matching: emoji) {
       emojiArt.emojis[index].x += Int(offset.width)
       emojiArt.emojis[index].y += Int(offset.height)
+      
+      return (emojiArt.emojis[index].x, emojiArt.emojis[index].y)
     }
+    
+    return (0,0)
   }
   
   func increaseSize(for emoji: EmojiArtModel.Emoji, by scale: CGFloat) {

@@ -56,7 +56,7 @@ struct EmojiArtDocumentView: View {
               .selectionBorder(isOn: isSelected(emoji: emoji), lineWidth: 2)
               .animatableSystemFont(fontSize: fontSize(for: emoji))
               .position(position(for: emoji, in: geometry))
-              .gesture(emojiDragGesture(for: emoji))
+              .gesture(emojiDragGesture(for: emoji, in: geometry))
               .onTapGesture {
                 selection.toggleMatching(emoji)
               }
@@ -156,7 +156,7 @@ struct EmojiArtDocumentView: View {
     return .zero
   }
   
-  private func emojiDragGesture(for emoji: Emoji) -> some Gesture {
+  private func emojiDragGesture(for emoji: Emoji, in geometry: GeometryProxy) -> some Gesture {
     DragGesture()
       .updating($gestureEmojiDragOffset) { latestDragGestureValue, gestureEmojiDragOffset, _ in
         let emojiIdsToDrag = selection.isEmpty ? [emoji.id] : selection
@@ -166,13 +166,22 @@ struct EmojiArtDocumentView: View {
       }
       .onEnded { finalDragGesture in
         if selection.isEmpty {
-          document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
+          let (emojiX, emojiY) = document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
+          
+          if isEmojiInTrash(location: (emojiX, emojiY), in: geometry) {
+            document.removeEmoji(emoji)
+          }
         } else {
           for emoji in selectedEmojis {
             document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
           }
         }
       }
+  }
+  
+  private func isEmojiInTrash(location: (x: Int, y: Int), in geometry: GeometryProxy) -> Bool {
+    let emojiLocation = convertFromEmojiCoordinates((location.x, location.y), in: geometry)
+    return emojiLocation.y > geometry.frame(in: .local).maxY
   }
   
   // MARK: - Zoom gestures
@@ -236,7 +245,28 @@ struct EmojiArtDocumentView: View {
   }
   
   var palette: some View {
-    ScrollingEmojisView(emojis: testEmojis)
+    HStack {
+      ScrollingEmojisView(emojis: testEmojis)
+        .font(.system(size: defaultEmojiFontSize))
+      
+      Spacer()
+      
+      // NOTE: Probably it's better to move trash out of palette
+      // because .clipped() view modifier doesn't allow an emoji to be hovered over the area
+      // that is outside of the borders of the clipped view.
+      // And it's observed like emoji is dragged behind the basket, not over it.
+      trashBasket
+    }
+  }
+  
+  var trashBasket: some View {
+    Image(systemName: "trash")
+      .overlay(
+        Circle().stroke(lineWidth: 2)
+          .padding(-5)
+      )
+      .foregroundColor(.black)
+      .padding([.trailing], 10)
       .font(.system(size: defaultEmojiFontSize))
   }
   
