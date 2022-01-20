@@ -46,9 +46,15 @@ class EmojiArtDocument: ObservableObject {
   }
   
   init() {
-    emojiArt = EmojiArtModel()
-    emojiArt.addEmoji("🥱", at: (-200, -100), size: 80)
-    emojiArt.addEmoji("😵‍💫", at: (50, 100), size: 40)
+    if let url = Autosave.url, let autosavedEmojiArt = try? EmojiArtModel(url: url) {
+      emojiArt = autosavedEmojiArt
+      fetchBackgroundImageDataIfNecessary()
+      print("Loaded")
+    } else {
+      emojiArt = EmojiArtModel()
+      emojiArt.addEmoji("🥱", at: (-200, -100), size: 80)
+      emojiArt.addEmoji("😵‍💫", at: (50, 100), size: 40)
+    }
   }
   
   var emojis: [EmojiArtModel.Emoji] { emojiArt.emojis }

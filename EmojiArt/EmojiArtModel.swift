@@ -33,6 +33,17 @@ struct EmojiArtModel: Codable {
   
   init() { }
   
+  init(json: Data) throws {
+    self = try JSONDecoder().decode(EmojiArtModel.self, from: json)
+  }
+  
+  init(url: URL) throws {
+    let data = try Data(contentsOf: url)
+    try self.init(json: data)
+    // Is also possible
+    // self = try EmojiArtModel(json: data)
+  }
+  
   private var uniqueEmojiId = 0
   
   mutating func addEmoji(_ text: String, at location: (x: Int, y: Int), size: Int) {
