@@ -16,6 +16,20 @@ class EmojiArtDocument: ObservableObject {
     }
   }
   
+  private func save(to url: URL) {
+    let thisfunction = "\(String(describing: self)).\(#function)"
+    do {
+      let data: Data = try emojiArt.json()
+      print("\(thisfunction) json = \(String(data: data, encoding: .utf8) ?? "nil")")
+      try data.write(to: url)
+      print("\(thisfunction) success!")
+    } catch let encodingError where encodingError is EncodingError {
+      print("\(thisfunction) couldn't encode EmojiArt as JSON because \(encodingError.localizedDescription)")
+    } catch {
+      print("\(thisfunction) error = \(error)")
+    }
+  }
+  
   init() {
     emojiArt = EmojiArtModel()
     emojiArt.addEmoji("🥱", at: (-200, -100), size: 80)
