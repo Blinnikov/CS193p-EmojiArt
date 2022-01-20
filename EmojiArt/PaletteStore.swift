@@ -22,12 +22,37 @@ struct Palette: Identifiable {
 class PaletteStore: ObservableObject {
   let name: String
   
-  @Published var palettes = [Palette]()
+  @Published var palettes = [Palette]() {
+    didSet {
+      storeInUserDefaults()
+    }
+  }
+  
+  private var userDefaultsKey: String {
+    "PaletteStore:" + name
+  }
+  
+  private func storeInUserDefaults() {
+    UserDefaults.standard.set(palettes.map { [$0.name,$0.emojis,String($0.id)] }, forKey: userDefaultsKey)
+  }
+  
+  private func restoreFromUserDefaults() {
+    if let palettesAsPropertyList = UserDefaults.standard.array(forKey: userDefaultsKey) as? [[String]] {
+      for paletteAsArray in palettesAsPropertyList {
+        if paletteAsArray.count == 3, let id = Int(paletteAsArray[2]), !palettes.contains(where: { $0.id == id}) {
+          let palette = Palette(name: paletteAsArray[0], emojis: paletteAsArray[1], id: id)
+          palettes.append(palette)
+        }
+      }
+    }
+  }
   
   init(named name: String) {
     self.name = name
+    restoreFromUserDefaults()
     
     if palettes.isEmpty {
+      print("using built-in palettes")
       insertPalette(named: "Vehicles", emojis: "🚙🚗🚘🚕🚖🏎🚚🛻🚛🚐🚓🚔🚑🚒🚀✈️🛫🛬🛩🚁🛸🚲🏍🛶⛵️🚤🛥🛳⛴🚢🚂🚝🚅🚆🚊🚉🚇🛺🚜")
       insertPalette(named: "Sports", emojis: "🏈⚾️🏀⚽️🎾🏐🥏🏓⛳️🥅🥌🏂⛷🎳")
       insertPalette(named: "Music", emojis: "🎼🎤🎹🪘🥁🎺🪗🪕🎻")
