@@ -17,8 +17,11 @@ class EmojiArtDocument: ObservableObject {
     }
   }
   
+  private var autosaveTimer: Timer?
+  
   private func scheduleAutosave() {
-    Timer.scheduledTimer(withTimeInterval: Autosave.coalescingInterval, repeats: false) { _ in
+    autosaveTimer?.invalidate()
+    autosaveTimer = Timer.scheduledTimer(withTimeInterval: Autosave.coalescingInterval, repeats: false) { _ in
       self.autosave()
     }
   }
