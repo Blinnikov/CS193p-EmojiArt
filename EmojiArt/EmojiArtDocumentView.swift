@@ -30,7 +30,7 @@ struct EmojiArtDocumentView: View {
   var body: some View {
     VStack(spacing: 0) {
       documentBody
-      palette
+      PaletteChooser(emojiFontSize: defaultEmojiFontSize)
     }
   }
   
@@ -258,21 +258,6 @@ struct EmojiArtDocumentView: View {
     }
   }
   
-  var palette: some View {
-    HStack {
-      ScrollingEmojisView(emojis: testEmojis)
-        .font(.system(size: defaultEmojiFontSize))
-      
-      Spacer()
-      
-      // NOTE: Probably it's better to move trash out of palette
-      // because .clipped() view modifier doesn't allow an emoji to be hovered over the area
-      // that is outside of the borders of the clipped view.
-      // And it's observed like emoji is dragged behind the basket, not over it.
-      trashBasket
-    }
-  }
-  
   var trashBasket: some View {
     Image(systemName: "trash")
       .overlay(
@@ -282,23 +267,6 @@ struct EmojiArtDocumentView: View {
       .foregroundColor(.black)
       .padding([.trailing], 10)
       .font(.system(size: defaultEmojiFontSize))
-  }
-  
-  let testEmojis = "📟🐮🐞🪃🚀🇨🇿🤓🧅🍟🍔💎😔🥳🥶👺"
-}
-
-struct ScrollingEmojisView: View {
-  let emojis: String
-  
-  var body: some View {
-    ScrollView(.horizontal) {
-      HStack {
-        ForEach(emojis.map { String($0) }, id: \.self) { emoji in
-          Text(emoji)
-            .onDrag { NSItemProvider(object: emoji as NSString) }
-        }
-      }
-    }
   }
 }
 
