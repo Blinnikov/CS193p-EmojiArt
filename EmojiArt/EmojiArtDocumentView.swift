@@ -51,6 +51,14 @@ struct EmojiArtDocumentView: View {
         if document.backgroundImageFetchStatus == .fetching {
           ProgressView().scaleEffect(2)
         } else {
+          HStack {
+            Spacer()
+            VStack {
+              Spacer()
+              trashBasket
+                .padding(.bottom, 5)
+            }
+          }
           ForEach(document.emojis) { emoji in
             Text(emoji.text)
               .selectionBorder(isOn: isSelected(emoji: emoji), lineWidth: 2)
@@ -169,6 +177,7 @@ struct EmojiArtDocumentView: View {
           let (emojiX, emojiY) = document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
           
           if isEmojiInTrash(location: (emojiX, emojiY), in: geometry) {
+            print("Emoji to be removed: \(emoji)")
             document.removeEmoji(emoji)
           }
         } else {
@@ -180,8 +189,13 @@ struct EmojiArtDocumentView: View {
   }
   
   private func isEmojiInTrash(location: (x: Int, y: Int), in geometry: GeometryProxy) -> Bool {
+    let trashBasketIconSize: CGFloat = 100 // Let's assume it's 100*100 square
     let emojiLocation = convertFromEmojiCoordinates((location.x, location.y), in: geometry)
-    return emojiLocation.y > geometry.frame(in: .local).maxY
+    let documentBodyFrame = geometry.frame(in: .local)
+    let trashBasketLeadingPosition = documentBodyFrame.maxX - trashBasketIconSize
+    let trashBasketTopPosition = documentBodyFrame.maxY - trashBasketIconSize
+    
+    return emojiLocation.x > trashBasketLeadingPosition && emojiLocation.y > trashBasketTopPosition
   }
   
   // MARK: - Zoom gestures
