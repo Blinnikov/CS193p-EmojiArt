@@ -37,8 +37,12 @@ struct PaletteChooser: View {
   
   @ViewBuilder
   var contextMenu: some View {
+    AnimatedActionButton(title: "Edit", systemImage: "pencil") {
+      paletteToEdit = store.palette(at: chosenPaletteIndex)
+    }
     AnimatedActionButton(title: "New", systemImage: "plus") {
       store.insertPalette(named: "New", emojis: "", at: chosenPaletteIndex)
+      paletteToEdit = store.palette(at: chosenPaletteIndex)
     }
     AnimatedActionButton(title: "Delete", systemImage: "minus.circle") {
       chosenPaletteIndex = store.removePalette(at: chosenPaletteIndex)
@@ -68,7 +72,12 @@ struct PaletteChooser: View {
     }
     .id(palette.id)
     .transition(rollTransition)
+    .popover(item: $paletteToEdit) { palette in
+      PaletteEditor(palette: $store.palettes[palette])
+    }
   }
+  
+  @State private var paletteToEdit: Palette?
   
   var rollTransition: AnyTransition {
     AnyTransition.asymmetric(
