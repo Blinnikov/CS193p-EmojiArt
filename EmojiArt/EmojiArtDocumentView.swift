@@ -25,7 +25,7 @@ struct EmojiArtDocumentView: View {
     selection.removeAll()
   }
   
-  let defaultEmojiFontSize: CGFloat = 40
+  @ScaledMetric var defaultEmojiFontSize: CGFloat = 40
   
   var body: some View {
     VStack(spacing: 0) {
