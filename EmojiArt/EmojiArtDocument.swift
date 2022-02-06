@@ -7,65 +7,43 @@
 
 import SwiftUI
 import Combine
+import UniformTypeIdentifiers
 
-class EmojiArtDocument: ObservableObject {
+extension UTType {
+  static let emojiart = UTType(exportedAs: "edu.stanford.cs193p.emojiart")
+}
+
+class EmojiArtDocument: ReferenceFileDocument {
+  static var readableContentTypes = [UTType.emojiart]
+  static var wtitableContentTypes = [UTType.emojiart]
+  
+  required init(configuration: ReadConfiguration) throws {
+    if let data = configuration.file.regularFileContents {
+      emojiArt = try EmojiArtModel(json: data)
+      fetchBackgroundImageDataIfNecessary()
+    } else {
+      throw CocoaError(.fileReadCorruptFile)
+    }
+  }
+  
+  func snapshot(contentType: UTType) throws -> Data {
+    try emojiArt.json()
+  }
+  
+  func fileWrapper(snapshot: Data, configuration: WriteConfiguration) throws -> FileWrapper {
+    FileWrapper(regularFileWithContents: snapshot)
+  }
+  
   @Published private(set) var emojiArt: EmojiArtModel {
     didSet {
-      scheduleAutosave()
       if emojiArt.background != oldValue.background {
         fetchBackgroundImageDataIfNecessary()
       }
     }
   }
   
-  private var autosaveTimer: Timer?
-  
-  private func scheduleAutosave() {
-    autosaveTimer?.invalidate()
-    autosaveTimer = Timer.scheduledTimer(withTimeInterval: Autosave.coalescingInterval, repeats: false) { _ in
-      self.autosave()
-    }
-  }
-  
-  private struct Autosave {
-    static let filename = "Autosaved.emojiart"
-    static var url: URL? {
-      let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-      return documentDirectory?.appendingPathComponent(filename)
-    }
-    static let coalescingInterval = 5.0
-  }
-  
-  private func autosave() {
-    if let url = Autosave.url {
-      save(to: url)
-    }
-  }
-  
-  private func save(to url: URL) {
-    let thisfunction = "\(String(describing: self)).\(#function)"
-    do {
-      let data: Data = try emojiArt.json()
-      print("\(thisfunction) json = \(String(data: data, encoding: .utf8) ?? "nil")")
-      try data.write(to: url)
-      print("\(thisfunction) success!")
-    } catch let encodingError where encodingError is EncodingError {
-      print("\(thisfunction) couldn't encode EmojiArt as JSON because \(encodingError.localizedDescription)")
-    } catch {
-      print("\(thisfunction) error = \(error)")
-    }
-  }
-  
   init() {
-    if let url = Autosave.url, let autosavedEmojiArt = try? EmojiArtModel(url: url) {
-      emojiArt = autosavedEmojiArt
-      fetchBackgroundImageDataIfNecessary()
-      print("Loaded")
-    } else {
-      emojiArt = EmojiArtModel()
-      emojiArt.addEmoji("🥱", at: (-200, -100), size: 80)
-      emojiArt.addEmoji("😵‍💫", at: (50, 100), size: 40)
-    }
+    emojiArt = EmojiArtModel()
   }
   
   var emojis: [EmojiArtModel.Emoji] { emojiArt.emojis }
