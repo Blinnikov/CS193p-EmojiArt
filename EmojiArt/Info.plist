@@ -38,6 +38,8 @@
 			</dict>
 		</dict>
 	</array>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict>

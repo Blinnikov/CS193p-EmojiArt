@@ -213,6 +213,23 @@ extension RawRepresentable where Self: Codable {
 
 extension CGSize: RawRepresentable { }
 extension CGFloat: RawRepresentable { }
+extension Set: RawRepresentable where Element: Codable {
+  public init?(rawValue: String) {
+    if let value = try? JSONDecoder().decode(Self.self, from: Data(rawValue.utf8)) {
+        self = value
+    } else {
+        return nil
+    }
+  }
+  
+  public var rawValue: String {
+    if let json = try? JSONEncoder().encode(self), let string = String(data: json, encoding: .utf8) {
+        return string
+    } else {
+        return ""
+    }
+  }
+}
 
 // convenience functions for [NSItemProvider] (i.e. array of NSItemProvider)
 // makes the code for  loading objects from the providers a bit simpler
