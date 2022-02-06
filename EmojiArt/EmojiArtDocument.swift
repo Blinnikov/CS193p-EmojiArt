@@ -104,13 +104,16 @@ class EmojiArtDocument: ReferenceFileDocument {
   
   // MARK: - Intent(s)
   
-  func setBackground(_ background: EmojiArtModel.Background) {
-    emojiArt.background = background
-    print("background set to \(background)")
+  func setBackground(_ background: EmojiArtModel.Background, undoManager: UndoManager?) {
+    undoablyPerform(operation: "Set Background", with: undoManager) {
+      emojiArt.background = background
+    }
   }
   
-  func addEmoji(_ emoji: String, at location: (x: Int, y: Int), size: CGFloat) {
-    emojiArt.addEmoji(emoji, at: location, size: Int(size))
+  func addEmoji(_ emoji: String, at location: (x: Int, y: Int), size: CGFloat, undoManager: UndoManager?) {
+    undoablyPerform(operation: "Add \(emoji)", with: undoManager) {
+      emojiArt.addEmoji(emoji, at: location, size: Int(size))
+    }
   }
   
   func removeEmoji(_ emoji: EmojiArtModel.Emoji) {
@@ -118,10 +121,12 @@ class EmojiArtDocument: ReferenceFileDocument {
   }
   
   @discardableResult
-  func moveEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGSize) -> (x: Int, y: Int) {
+  func moveEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGSize, undoManager: UndoManager?) -> (x: Int, y: Int) {
     if let index = emojiArt.emojis.index(matching: emoji) {
-      emojiArt.emojis[index].x += Int(offset.width)
-      emojiArt.emojis[index].y += Int(offset.height)
+      undoablyPerform(operation: "Move \(emoji)", with: undoManager) {
+        emojiArt.emojis[index].x += Int(offset.width)
+        emojiArt.emojis[index].y += Int(offset.height)
+      }
       
       return (emojiArt.emojis[index].x, emojiArt.emojis[index].y)
     }
@@ -129,11 +134,26 @@ class EmojiArtDocument: ReferenceFileDocument {
     return (0,0)
   }
   
-  func increaseSize(for emoji: EmojiArtModel.Emoji, by scale: CGFloat) {
+  func increaseSize(for emoji: EmojiArtModel.Emoji, by scale: CGFloat, undoManager: UndoManager?) {
     if let index = emojiArt.emojis.index(matching: emoji) {
       let newSize = Int(CGFloat(emojiArt.emojis[index].size) * scale)
       let finalSize = max(1, newSize)
-      emojiArt.emojis[index].size = finalSize
+      undoablyPerform(operation: "Increase size of \(emoji)", with: undoManager) {
+        emojiArt.emojis[index].size = finalSize
+      }
     }
+  }
+  
+  // MARK: - Undo
+  
+  private func undoablyPerform(operation: String, with undoManager: UndoManager? = nil, doit: () -> Void) {
+    let oldEmojiArt = emojiArt
+    doit()
+    undoManager?.registerUndo(withTarget: self) { myself in
+      myself.undoablyPerform(operation: operation, with: undoManager) {
+        myself.emojiArt = oldEmojiArt
+      }
+    }
+    undoManager?.setActionName(operation)
   }
 }

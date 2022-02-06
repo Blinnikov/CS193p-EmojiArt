@@ -10,8 +10,12 @@ import SwiftUI
 struct EmojiArtDocumentView: View {
   typealias Emoji = EmojiArtModel.Emoji
   
+  @Environment(\.undoManager) var undoManager
+  
   @ObservedObject var document: EmojiArtDocument
-  @State private var selection: Set<Int> = []
+  
+  @SceneStorage("EmojiArtDocumentView.selection")
+  private var selection: Set<Int> = []
   
   func isSelected(emoji: Emoji) -> Bool {
     selection.contains(emoji.id)
@@ -114,13 +118,13 @@ struct EmojiArtDocumentView: View {
   private func drop(providers: [NSItemProvider], at location: CGPoint, in geometry: GeometryProxy) -> Bool {
     var found = providers.loadObjects(ofType: URL.self) { url in
       autozoom = true
-      document.setBackground(.url(url.imageURL))
+      document.setBackground(.url(url.imageURL), undoManager: undoManager)
     }
     if !found {
       found = providers.loadObjects(ofType: UIImage.self) { image in
         if let data = image.jpegData(compressionQuality: 1.0) {
           autozoom = true
-          document.setBackground(.imageData(data))
+          document.setBackground(.imageData(data), undoManager: undoManager)
         }
       }
     }
@@ -130,7 +134,8 @@ struct EmojiArtDocumentView: View {
           document.addEmoji(
             String(emoji),
             at: convertToEmojiCoordinates(location, in: geometry),
-            size: defaultEmojiFontSize / zoomScale
+            size: defaultEmojiFontSize / zoomScale,
+            undoManager: undoManager
           )
         }
       }
@@ -207,7 +212,7 @@ struct EmojiArtDocumentView: View {
       }
       .onEnded { finalDragGesture in
         if selection.isEmpty {
-          let (emojiX, emojiY) = document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
+          let (emojiX, emojiY) = document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale, undoManager: undoManager)
           
           if isEmojiInTrash(location: (emojiX, emojiY), in: geometry) {
             print("Emoji to be removed: \(emoji)")
@@ -215,7 +220,7 @@ struct EmojiArtDocumentView: View {
           }
         } else {
           for emoji in selectedEmojis {
-            document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale)
+            document.moveEmoji(emoji, by: finalDragGesture.translation / zoomScale, undoManager: undoManager)
           }
         }
       }
@@ -259,7 +264,7 @@ struct EmojiArtDocumentView: View {
           steadyStateZoomScale *= gestureScaleAtEnd
         } else {
           for emoji in selectedEmojis {
-            document.increaseSize(for: emoji, by: gestureScaleAtEnd)
+            document.increaseSize(for: emoji, by: gestureScaleAtEnd, undoManager: undoManager)
           }
         }
       }
