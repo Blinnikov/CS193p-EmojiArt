@@ -41,11 +41,10 @@ struct EmojiArtDocumentView: View {
   var documentBody: some View {
     GeometryReader { geometry in
       ZStack {
-        Color.white.overlay(
-          OptionalImage(uiImage: document.backgroundImage)
-            .scaleEffect(zoomScale)
-            .position(convertFromEmojiCoordinates((0,0), in: geometry))
-        )
+        Color.white
+        OptionalImage(uiImage: document.backgroundImage)
+          .scaleEffect(zoomScale)
+          .position(convertFromEmojiCoordinates((0,0), in: geometry))
           .gesture(
             // It lags. Probably it waits first to second tap not to happen.
             // And it's observed as a delay on emojis deselection.
