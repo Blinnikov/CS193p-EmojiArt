@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7811AE7027B29F5100470991 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7811AE6F27B29F5100470991 /* Camera.swift */; };
 		781713002794B590008A9D2B /* AnimatableSystemFontModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781712FF2794B590008A9D2B /* AnimatableSystemFontModifier.swift */; };
 		781713022794B83A008A9D2B /* SelectionBorderViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781713012794B83A008A9D2B /* SelectionBorderViewModifier.swift */; };
 		7820E625278EE10A00C7EF31 /* EmojiArtApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7820E624278EE10A00C7EF31 /* EmojiArtApp.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7811AE6F27B29F5100470991 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		781712FF2794B590008A9D2B /* AnimatableSystemFontModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableSystemFontModifier.swift; sourceTree = "<group>"; };
 		781713012794B83A008A9D2B /* SelectionBorderViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionBorderViewModifier.swift; sourceTree = "<group>"; };
 		7820E621278EE10A00C7EF31 /* EmojiArt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmojiArt.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,6 +95,7 @@
 				789807BE279B5A3400D9185E /* PaletteChooser.swift */,
 				7856F337279E01D60084A593 /* PaletteEditor.swift */,
 				7856F339279EE77F0084A593 /* PaletteManager.swift */,
+				7811AE6F27B29F5100470991 /* Camera.swift */,
 			);
 			path = EmojiArt;
 			sourceTree = "<group>";
@@ -186,6 +189,7 @@
 				781713002794B590008A9D2B /* AnimatableSystemFontModifier.swift in Sources */,
 				781713022794B83A008A9D2B /* SelectionBorderViewModifier.swift in Sources */,
 				78442395279A177500D3E060 /* PaletteStore.swift in Sources */,
+				7811AE7027B29F5100470991 /* Camera.swift in Sources */,
 				78A566FC2796B0DB00074794 /* Set+Extension.swift in Sources */,
 				7856F338279E01D60084A593 /* PaletteEditor.swift in Sources */,
 				78D30EAC278F0DFB000C675D /* EmojiArtModel.Background.swift in Sources */,
