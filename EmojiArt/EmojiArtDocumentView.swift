@@ -123,6 +123,11 @@ struct EmojiArtDocumentView: View {
       document.setBackground(.imageData(imageData), undoManager: undoManager)
     } else if let url = UIPasteboard.general.url?.imageURL {
       document.setBackground(.url(url), undoManager: undoManager)
+    } else {
+      alertToShow = IdentifiableAlert(
+        title: "Paste Background",
+        message: "There is no image currently on the pasteboard."
+      )
     }
   }
   
