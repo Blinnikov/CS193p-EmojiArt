@@ -222,7 +222,7 @@ struct EmojiArtDocumentView: View {
           
           if isEmojiInTrash(location: (emojiX, emojiY), in: geometry) {
             print("Emoji to be removed: \(emoji)")
-            document.removeEmoji(emoji)
+            document.removeEmoji(emoji, undoManager: undoManager)
           }
         } else {
           for emoji in selectedEmojis {

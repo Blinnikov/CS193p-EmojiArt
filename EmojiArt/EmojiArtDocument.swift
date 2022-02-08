@@ -116,14 +116,16 @@ class EmojiArtDocument: ReferenceFileDocument {
     }
   }
   
-  func removeEmoji(_ emoji: EmojiArtModel.Emoji) {
-    emojiArt.removeEmoji(emoji)
+  func removeEmoji(_ emoji: EmojiArtModel.Emoji, undoManager: UndoManager?) {
+    undoablyPerform(operation: "Remove \(emoji.text)", with: undoManager) {
+      emojiArt.removeEmoji(emoji)
+    }
   }
   
   @discardableResult
   func moveEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGSize, undoManager: UndoManager?) -> (x: Int, y: Int) {
     if let index = emojiArt.emojis.index(matching: emoji) {
-      undoablyPerform(operation: "Move \(emoji)", with: undoManager) {
+      undoablyPerform(operation: "Move \(emoji.text)", with: undoManager) {
         emojiArt.emojis[index].x += Int(offset.width)
         emojiArt.emojis[index].y += Int(offset.height)
       }
@@ -138,7 +140,7 @@ class EmojiArtDocument: ReferenceFileDocument {
     if let index = emojiArt.emojis.index(matching: emoji) {
       let newSize = Int(CGFloat(emojiArt.emojis[index].size) * scale)
       let finalSize = max(1, newSize)
-      undoablyPerform(operation: "Increase size of \(emoji)", with: undoManager) {
+      undoablyPerform(operation: "Increase size of \(emoji.text)", with: undoManager) {
         emojiArt.emojis[index].size = finalSize
       }
     }
